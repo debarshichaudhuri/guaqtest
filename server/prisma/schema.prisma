@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  role         String   @default("staff") // "admin" | "staff"
+  permissions  Json     @default("[]")
+  phone        String?
+  createdAt    DateTime @default(now())
+
+  @@map("users")
+}
+
+model StaffMember {
+  id           String  @id @default(cuid())
+  name         String
+  role         String
+  email        String  @unique
+  phone        String
+  currentShift String  @default("Morning") // "Morning" | "Evening" | "Night"
+  isOnDuty     Boolean @default(false)
+  avatarBg     String  @default("bg-blue-500")
+
+  @@map("staff_members")
+}
+
+model Ticket {
+  id          String   @id @default(cuid())
+  roomId      String
+  guestName   String
+  category    String   // "Housekeeping" | "Maintenance" | "F&B" | "Front Desk" | "Concierge"
+  description String
+  status      String   @default("New") // "New" | "In Progress" | "Resolved"
+  priority    String   @default("Medium") // "Low" | "Medium" | "High" | "Critical"
+  createdAt   DateTime @default(now())
+  assignedTo  String?
+
+  @@map("tickets")
+}
+
+model Review {
+  id        String  @id @default(cuid())
+  guestName String
+  rating    Int
+  date      String
+  platform  String  // "google" | "tripadvisor"
+  comment   String
+  response  String?
+  status    String  @default("Pending") // "Pending" | "Replied"
+
+  @@map("reviews")
+}
+
+model Alert {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  type      String   // "critical" | "warning" | "info"
+  msg       String
+  time      String
+  createdAt DateTime @default(now())
+
+  @@map("alerts")
+}
+
+model TelegramLog {
+  id         String   @id @default(cuid())
+  chatId     String
+  senderName String
+  message    String
+  isBot      Boolean  @default(false)
+  sentAt     DateTime @default(now())
+
+  @@map("telegram_logs")
+}
+
+model ReviewConfig {
+  id               String  @id @default(cuid())
+  platform         String  @unique
+  minRating        Int     @default(4)
+  prefilledText    String  @default("")
+  autoReplyEnabled Boolean @default(false)
+  signature        String  @default("")
+
+  @@map("review_configs")
+}
+
+model BrandingConfig {
+  id           String  @id @default(cuid())
+  hotelName    String  @default("Country Inn & Suites")
+  appName      String  @default("GuaqAI")
+  logoUrl      String?
+  primaryColor String  @default("#6366f1")
+
+  @@map("branding_configs")
+}
+
+model AffiliateContact {
+  id       String @id @default(cuid())
+  label    String
+  number   String
+  category String // "Transport" | "Medical" | "Services" | "Other"
+
+  @@map("affiliate_contacts")
+}
+
+model DocumentFile {
+  id          String   @id @default(cuid())
+  name        String
+  type        String
+  size        String
+  description String
+  uploadDate  DateTime @default(now())
+
+  @@map("document_files")
+}
